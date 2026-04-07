@@ -237,8 +237,12 @@
   <a href="#matrix">适配矩阵</a>
   <a href="#gap">差距与风险</a>
   <a href="#nonms">非微软技术栈</a>
+  <a href="#tianxiang">天象平台冲突</a>
+  <a href="#perf">性能与数据量</a>
+  <a href="#logistics">物流行业适配</a>
+  <a href="#compete">竞品对比</a>
   <a href="#roadmap">实施路线</a>
-  <a href="#summary">总结建议</a>
+  <a href="#verdict">中肯评判</a>
 </nav>
 
 <div class="container">
@@ -893,9 +897,201 @@
   </div>
 </section>
 
-<!-- ════════════ 11. ROADMAP ════════════ -->
+<!-- ════════════ 11. TIANXIANG ════════════ -->
+<section id="tianxiang">
+  <h2><span class="icon">🔗</span> 十一、天象平台深度绑定 — 结构性障碍分析</h2>
+
+  <div class="callout danger">
+    <span class="icon">🚨</span>
+    <div>
+      <strong>核心判断：</strong>极兔 RFP 的技术标准体系并非通用的"供应商筛选标准"，而是<strong>为天象平台生态量身定制的准入门槛</strong>。
+      这意味着 RFP 的评审逻辑很可能是"在天象平台上构建业财系统"，而不是"选择最佳业财产品"。
+    </div>
+  </div>
+
+  <h3>天象平台技术生态要求全景</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th style="width:30%">天象平台要求</th><th style="width:30%">实质含义</th><th style="width:20%">D365 可行性</th><th style="width:20%">客观评估</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>微服务架构 + 天象注册中心</td><td>要求系统以微服务形式注册到天象的 Nacos/Consul 服务网格</td><td class="fit-gap">✘ 不可行</td><td>D365 是 SaaS 整体服务，不支持拆分为微服务注册</td></tr>
+        <tr><td>前端适配天象组件规范</td><td>要求使用天象的 UI 组件库构建前端</td><td class="fit-gap">✘ 不可行</td><td>D365 有自己的 UI 框架，Power Apps 基于 React 但非天象组件</td></tr>
+        <tr><td>K8s 容器化 + 天象集群</td><td>要求部署到极兔私有 K8s 集群并共用调度体系</td><td class="fit-gap">✘ 不可行</td><td>D365 SaaS 不支持私有化容器部署</td></tr>
+        <tr><td>天象监控生态 (Prometheus/Grafana)</td><td>要求接入天象统一监控告警</td><td class="fit-part">◐ 有限</td><td>D365 有 Azure Monitor，可导出指标但无法直接接入 Prometheus</td></tr>
+        <tr><td>天象大数据生态 (HDFS/Hive/Doris)</td><td>要求财务数据双向同步到天象数据湖</td><td class="fit-part">◐ 桥接</td><td>通过 Synapse Link → Data Lake → ETL 可实现，但非"原生集成"</td></tr>
+        <tr><td>天象统一权限体系</td><td>要求接入天象自有 IAM</td><td class="fit-part">◐ 有限</td><td>D365 使用 Microsoft Entra ID，可通过 SAML/OIDC 联邦但有限制</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout warn">
+    <span class="icon">⚠️</span>
+    <div>
+      <strong>实事求是的结论：</strong>天象平台深度绑定要求意味着极兔希望业财系统成为天象技术生态的"内部模块"，
+      而非独立的 SaaS 产品。这与 D365 F&O 的产品定位（独立 SaaS ERP）存在<strong>根本性矛盾</strong>。
+      即使在功能层面 D365 完全满足需求，<strong>天象平台的技术准入门槛就会导致 D365 方案在技术评审中失分严重</strong>。
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ 12. PERFORMANCE ════════════ -->
+<section id="perf">
+  <h2><span class="icon">⚡</span> 十二、海量订单性能 — ERP 定位的本质局限</h2>
+
+  <div class="callout danger">
+    <span class="icon">💥</span>
+    <div>
+      <strong>直面事实：</strong>D365 F&O 是企业级 ERP 系统，不是高频交易处理引擎。
+      极兔日峰值 <strong>1 亿票</strong>（双11 可能更高）的业务量级，对任何传统 ERP 都是巨大挑战。
+    </div>
+  </div>
+
+  <h3>数据量级的冷静分析</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>指标</th><th>极兔实际规模</th><th>D365 F&O 已验证上限</th><th>适配评估</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>日峰值运单量</td><td><strong>1 亿票</strong>（双11可达 1.5-2 亿）</td><td>D365 设计面向百万级日交易量</td><td class="fit-gap">✘ 数量级差距</td></tr>
+        <tr><td>年度凭证行数</td><td><strong>1 亿行</strong>（NCC 汇聚后）</td><td>大型客户年度千万至亿级凭证行可行</td><td class="fit-part">◐ 汇聚后可行</td></tr>
+        <tr><td>年度单据量</td><td><strong>1 千万</strong>（NCC 汇聚后）</td><td>千万级单据是 D365 大型部署的常见规模</td><td class="fit-full">● 可行</td></tr>
+        <tr><td>批量凭证过账</td><td>要求数十万笔/分钟级完成</td><td>Batch Parallel + Auto Scaling + Reserved Capacity</td><td class="fit-part">◐ 需优化</td></tr>
+        <tr><td>实时结算对账</td><td>要求业务流与资金流实时匹配</td><td>D365 AR Settlement 是批量操作，非实时</td><td class="fit-part">◐ 准实时</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>关键事实</h3>
+  <div class="risk-matrix">
+    <div class="risk-item high">
+      <span class="level h">核心认知</span>
+      <h4>ERP ≠ 业务中台</h4>
+      <p>D365 F&O 定位是<strong>财务管理系统</strong>（记账、核销、报表），不是快递业务中台（实时揽收、运转、计费）。
+      极兔的 JMS 才是处理 1 亿票的系统。问题在于：极兔需要的"业财中台"到底是<strong>另一个 JMS 级别的实时系统</strong>，
+      还是一个<strong>接收汇聚数据的后端财务系统</strong>？</p>
+      <p>如果是前者，D365 不适合。如果是后者（NCC 已证明是汇聚模式：1亿票 → 1千万单据），D365 完全可以胜任。</p>
+    </div>
+    <div class="risk-item high">
+      <span class="level h">对比参照</span>
+      <h4>NCC（用友 BIP）的现状</h4>
+      <p>极兔目前使用的 NCC/用友 BIP 处理的也是<strong>汇聚后的数据</strong>（凭证行 1 亿/年，单据 1 千万/年），
+      而非直接处理 1 亿票运单。这说明极兔的架构本身就是 <strong>JMS 汇聚 → 财务系统</strong> 的模式。
+      D365 F&O 在同等汇聚条件下，处理能力不弱于用友 BIP。</p>
+    </div>
+    <div class="risk-item medium">
+      <span class="level m">双 11 压测风险</span>
+      <h4>峰值吞吐量不确定</h4>
+      <p>Azure Batch Auto Scaling 可弹性扩容，但 D365 SaaS 租户的<strong>资源上限受限于 License 和 Microsoft 配额</strong>。
+      双 11 期间如果汇聚后的数据峰值超出 Batch 处理能力，会产生延迟。需要 Microsoft 专项支持（Premier Support + 容量预留）。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ 13. LOGISTICS ════════════ -->
+<section id="logistics">
+  <h2><span class="icon">🚚</span> 十三、物流快递行业适配 — D365 的短板</h2>
+
+  <div class="callout warn">
+    <span class="icon">⚠️</span>
+    <div>
+      <strong>坦率评估：</strong>D365 Finance 在制造、零售、专业服务等行业有丰富案例，但在<strong>快递物流行业</strong>（尤其是中国/东南亚快递）的标杆案例非常有限。
+      这是与用友/金蝶竞争时的显著劣势。
+    </div>
+  </div>
+
+  <h3>行业功能对比</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th style="width:25%">快递物流行业特色需求</th><th style="width:25%">D365 F&O 覆盖度</th><th style="width:25%">用友 BIP/NCC</th><th style="width:25%">差距评估</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>运单级别计费与结算</td><td>无原生支持，需全定制</td><td>已在极兔运行多年</td><td class="fit-gap">D365 弱势</td></tr>
+        <tr><td>揽收/运转/派送业务事件 → 财务凭证</td><td>需自建事件映射层</td><td>已有成熟的业务事件模型</td><td class="fit-gap">D365 弱势</td></tr>
+        <tr><td>单票成本归集</td><td>Project Accounting 可变通，但非设计目标</td><td>有快递行业单票成本模块</td><td class="fit-gap">D365 弱势</td></tr>
+        <tr><td>代收货款（COD）管理</td><td>无原生模块，需全定制</td><td>有 COD 管理功能</td><td class="fit-gap">D365 弱势</td></tr>
+        <tr><td>面单预收款管理</td><td>预付款功能可变通</td><td>有面单管理</td><td class="fit-part">D365 弱势</td></tr>
+        <tr><td>网点/加盟商结算</td><td>Intercompany 可变通</td><td>有加盟商结算模块</td><td class="fit-part">D365 弱势</td></tr>
+        <tr><td>多国应收/应付核算</td><td><strong>原生强项</strong>，全球化引擎</td><td>国际化弱于 D365</td><td class="fit-full">D365 优势</td></tr>
+        <tr><td>多币种合并报表</td><td><strong>原生强项</strong>，Financial Consolidation</td><td>合并模块相对薄弱</td><td class="fit-full">D365 优势</td></tr>
+        <tr><td>全球税务合规/电子发票</td><td><strong>原生强项</strong>，210+ 国家</td><td>中国/东南亚有优势，全球弱</td><td class="fit-full">D365 优势</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>快递物流行业参考案例</h3>
+  <div class="compare-grid">
+    <div class="compare-col">
+      <h4>🔵 D365 在物流领域</h4>
+      <ul>
+        <li><strong>FedEx / UPS / DHL：</strong>大型国际快递公司多使用 SAP 或 Oracle，非 D365。D365 在快递领域<strong>无一线标杆</strong></li>
+        <li><strong>Maersk（马士基）：</strong>航运物流使用 D365 SCM，但航运 ≠ 快递</li>
+        <li><strong>DB Schenker：</strong>部分使用 D365，但以 3PL 为主</li>
+        <li>D365 在物流领域的案例集中在<strong>仓储 / 3PL / 供应链</strong>，而非快递</li>
+        <li>中国/东南亚快递行业：<strong>无可引用的 D365 成功案例</strong></li>
+      </ul>
+    </div>
+    <div class="compare-col">
+      <h4>🔴 竞品在快递领域</h4>
+      <ul>
+        <li><strong>用友 BIP / NCC：</strong>极兔现有系统，已适配快递业务模型，有<strong>顺丰、中通、韵达</strong>等同行案例</li>
+        <li><strong>金蝶云苍穹：</strong>有圆通等快递客户，Java 微服务架构天然契合天象</li>
+        <li><strong>SAP S/4HANA：</strong>DHL 使用，全球化能力强，但成本更高</li>
+        <li><strong>自研方案：</strong>部分头部快递（菜鸟体系）完全自研</li>
+        <li>用友/金蝶在中国快递行业有<strong>显著的行业知识壁垒和客户感情基础</strong></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ 14. COMPETE ════════════ -->
+<section id="compete">
+  <h2><span class="icon">⚔️</span> 十四、竞品对比 — 中肯的竞争力分析</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th style="width:18%">评估维度</th><th style="width:18%">D365 Finance</th><th style="width:18%">用友 BIP</th><th style="width:18%">金蝶云苍穹</th><th style="width:18%">SAP S/4HANA</th><th style="width:10%">权重</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>天象平台兼容性</strong></td><td class="fit-gap">✘ 2/10</td><td class="fit-full">● 9/10</td><td class="fit-full">● 8/10</td><td class="fit-gap">✘ 3/10</td><td>⭐⭐⭐⭐⭐</td></tr>
+        <tr><td><strong>快递行业功能</strong></td><td class="fit-gap">✘ 3/10</td><td class="fit-full">● 9/10</td><td class="fit-part">◐ 7/10</td><td class="fit-part">◐ 5/10</td><td>⭐⭐⭐⭐⭐</td></tr>
+        <tr><td><strong>海量数据性能</strong></td><td class="fit-part">◐ 6/10</td><td class="fit-part">◐ 7/10</td><td class="fit-part">◐ 7/10</td><td class="fit-part">◐ 6/10</td><td>⭐⭐⭐⭐</td></tr>
+        <tr><td><strong>全球化 (14国)</strong></td><td class="fit-full">● 9/10</td><td class="fit-part">◐ 5/10</td><td class="fit-gap">✘ 3/10</td><td class="fit-full">● 9/10</td><td>⭐⭐⭐⭐</td></tr>
+        <tr><td><strong>多币种/合并报表</strong></td><td class="fit-full">● 9/10</td><td class="fit-part">◐ 6/10</td><td class="fit-part">◐ 5/10</td><td class="fit-full">● 9/10</td><td>⭐⭐⭐</td></tr>
+        <tr><td><strong>AI/Copilot 能力</strong></td><td class="fit-full">● 9/10</td><td class="fit-part">◐ 5/10</td><td class="fit-part">◐ 4/10</td><td class="fit-part">◐ 6/10</td><td>⭐⭐</td></tr>
+        <tr><td><strong>源码交付</strong></td><td class="fit-gap">✘ 1/10</td><td class="fit-full">● 9/10</td><td class="fit-full">● 9/10</td><td class="fit-gap">✘ 2/10</td><td>⭐⭐⭐⭐</td></tr>
+        <tr><td><strong>实施成本</strong></td><td class="fit-part">◐ 5/10</td><td class="fit-full">● 8/10</td><td class="fit-full">● 7/10</td><td class="fit-gap">✘ 3/10</td><td>⭐⭐⭐</td></tr>
+        <tr><td><strong>客户关系/现有基础</strong></td><td class="fit-gap">✘ 1/10</td><td class="fit-full">● 10/10</td><td class="fit-part">◐ 4/10</td><td class="fit-gap">✘ 2/10</td><td>⭐⭐⭐⭐</td></tr>
+        <tr style="background:#f3f2f1;font-weight:700">
+          <td>加权综合评分</td>
+          <td style="color:#d13438">~4.2 / 10</td>
+          <td style="color:#107c10">~7.8 / 10</td>
+          <td style="color:#ca5010">~6.2 / 10</td>
+          <td style="color:#ca5010">~4.8 / 10</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout danger">
+    <span class="icon">📊</span>
+    <div>
+      <strong>竞争力诊断：</strong>
+      在极兔这个具体项目的评选维度下（天象兼容 + 快递行业 + 源码交付权重极高），<strong>D365 的综合竞争力排名最末</strong>。
+      用友 BIP 作为现有供应商，在客户关系、行业理解、技术适配三个维度均占绝对优势。
+      金蝶云苍穹作为 Java 微服务架构的挑战者具有一定竞争力。D365 的优势领域（全球化、AI）在极兔当前的评审权重体系中被稀释。
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ 15. ROADMAP ════════════ -->
 <section id="roadmap">
-  <h2><span class="icon">🗺️</span> 十一、建议实施路线图</h2>
+  <h2><span class="icon">🗺️</span> 十五、建议实施路线图（如决定应标）</h2>
   <p>以下路线图对标极兔 RFP 中的交付里程碑，假设采用<strong>赛道A（产品型方案）</strong>：</p>
 
   <div class="timeline">
@@ -955,42 +1151,106 @@
   </div>
 </section>
 
-<!-- ════════════ 12. SUMMARY ════════════ -->
-<section id="summary">
-  <h2><span class="icon">✅</span> 十二、总结与建议</h2>
+<!-- ════════════ VERDICT ════════════ -->
+<section id="verdict">
+  <h2><span class="icon">⚖️</span> 十六、中肯评判 — 应标 / 不应标决策分析</h2>
 
+  <div style="background:#fff;border-radius:8px;padding:32px;box-shadow:0 2px 8px rgba(0,0,0,.1);margin-bottom:24px;text-align:center">
+    <div style="font-size:1rem;color:#605e5c;margin-bottom:8px">基于 RFP 评审维度的 D365 方案赢单概率评估</div>
+    <div style="font-size:4rem;font-weight:800;color:#d13438;line-height:1">10~15%</div>
+    <div style="font-size:1rem;color:#a80000;margin-top:8px;font-weight:600">赢单概率极低 — 建议审慎决策是否投入应标资源</div>
+  </div>
+
+  <h3>为什么概率这么低？— 三重结构性劣势</h3>
+  <div class="risk-matrix">
+    <div class="risk-item high">
+      <span class="level h">劣势 1：技术架构淘汰风险</span>
+      <h4>RFP 为天象平台量身定制</h4>
+      <p>RFP 第五章"系统技术标准"明确要求 Java 后端、天象注册中心、天象前端组件、私有云 K8s、指定数据库、全量源码。
+      这些是<strong>强制性要求（"不满足任何一条将直接导致应答无效"）</strong>。
+      D365 作为 .NET SaaS 产品，至少有 4 条硬指标无法满足，可能在初审阶段即被淘汰。</p>
+    </div>
+    <div class="risk-item high">
+      <span class="level h">劣势 2：在位者壁垒</span>
+      <h4>用友 BIP 是现有供应商</h4>
+      <p>极兔目前的 NCC 就是<strong>用友的产品</strong>。用友对极兔业务的理解深度、客户关系积累、数据迁移便利性、行业案例（顺丰、中通等）
+      构成了极高的<strong>在位者壁垒</strong>（Incumbent Advantage）。
+      业财中台项目大概率是 NCC 升级到用友 BIP 新架构的路径。</p>
+    </div>
+    <div class="risk-item high">
+      <span class="level h">劣势 3：行业空白</span>
+      <h4>快递物流无标杆案例</h4>
+      <p>D365 Finance 在中国/东南亚快递行业<strong>没有可引用的成功案例</strong>。
+      在 RFP 要求"最好有快递行业成功实施案例"且"案例客户体量与我司相当"的条件下，
+      微软及其合作伙伴很难提供有说服力的案例证明。</p>
+    </div>
+  </div>
+
+  <h3>D365 的唯一差异化优势在哪里？</h3>
   <div class="card-grid">
     <div class="card green">
-      <h4>💪 D365 核心优势</h4>
+      <h4>🌍 全球化 — 这是 D365 唯一能"碾压"用友的维度</h4>
       <ul>
-        <li>全球 <strong>210+</strong> 国家/地区本地化覆盖，Globalization Studio 持续法规更新</li>
-        <li>企业级 GL 引擎：多账簿、多币种、复式记账、审计追溯一步到位</li>
-        <li>AR 模块成熟：自动结算、账龄分析、信用管理开箱即用</li>
-        <li>AI 先发优势：Copilot for Finance、MCP Server、Account Reconciliation Agent</li>
-        <li>Azure 全球基础设施：多区域部署、中国世纪互联、弹性伸缩</li>
-        <li>Power BI / Fabric 统一分析平台，BI 能力市场份额第一</li>
+        <li>极兔要覆盖 14 个国家，用友 BIP 的海外本地化（尤其巴西、中东、哥伦比亚、德国）<strong>远不如 D365</strong></li>
+        <li>Globalization Studio 的电子发票（ZATCA、NF-e、CFDI）是成熟的产品化方案，用友需要大量定制</li>
+        <li>如果极兔的全球化战略是 <strong>"14 国统一核算标准"</strong>，D365 的价值主张成立</li>
+        <li>但如果极兔接受 <strong>"中国区用BIP + 海外分别适配本地方案"</strong>，这个优势就被稀释了</li>
       </ul>
     </div>
-    <div class="card yellow">
-      <h4>⚠️ 需要关注的差距</h4>
+    <div class="card green">
+      <h4>🤖 AI / Copilot — 长期竞争力但短期不是决策因子</h4>
       <ul>
-        <li>日峰值1亿票级别数据需要<strong>架构层汇聚设计</strong></li>
-        <li>技术栈要求（Java/私有云/源码）与 D365 SaaS 交付模式冲突</li>
-        <li>天象平台深度耦合要求需要<strong>API集成层</strong>而非直耦</li>
-        <li>部分国家支付通道/税控系统需 ISV 扩展</li>
-        <li>飞书等非微软生态 IM 需要自定义集成</li>
-        <li>坏账分层计提需 X++ 定制开发</li>
+        <li>Copilot for Finance、MCP Server、Account Reconciliation Agent 是领先能力</li>
+        <li>但在当前 RFP 评审中，AI 能力<strong>不在核心评分项</strong></li>
+        <li>用友也在快速追赶 AI 能力（用友大模型 YonGPT）</li>
+        <li>这是一个值得在"战略展望"中讲述的故事，但不能改变技术评审结果</li>
       </ul>
     </div>
-    <div class="card">
-      <h4>📌 下一步建议</h4>
-      <ol>
-        <li><strong>战略沟通：</strong>与极兔技术委员会沟通"产品型 vs 定制型"路线选择</li>
-        <li><strong>PoC 验证：</strong>选取泰国场景做 2 周快速 PoC，验证 JMS→D365→Power BI 全链路</li>
-        <li><strong>数据量压测：</strong>模拟千万级凭证行批量过账，验证 Batch Auto Scaling 表现</li>
-        <li><strong>合规确认：</strong>逐国确认电子发票/税务计算的 Globalization Studio 覆盖度</li>
-        <li><strong>天象适配原型：</strong>用 Azure API Management 搭建 D365 ↔ 天象平台 API 网关原型</li>
-      </ol>
+  </div>
+
+  <h3>应标 / 不应标决策矩阵</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th style="width:20%">决策选项</th><th style="width:40%">适用条件</th><th style="width:20%">资源投入</th><th style="width:20%">推荐度</th></tr>
+      </thead>
+      <tbody>
+        <tr style="background:#fde7e9">
+          <td><strong>选项 A：不应标</strong></td>
+          <td>如果确认 RFP 技术硬指标不可协商（Java/私有云/源码交付为淘汰项），建议<strong>主动放弃</strong>，避免投入 2-3 人月的无效应标成本</td>
+          <td>0</td>
+          <td style="color:#d13438;font-weight:700">⭐⭐⭐⭐ 推荐</td>
+        </tr>
+        <tr style="background:#fff4ce">
+          <td><strong>选项 B：战略接触</strong></td>
+          <td>不正式应标，但通过微软中国高层拜访极兔 CTO/CFO，以<strong>"全球化财务合规顾问"</strong>角色切入，谈长期合作（如海外财务系统单独用 D365）</td>
+          <td>低（销售拜访）</td>
+          <td style="color:#ca5010;font-weight:700">⭐⭐⭐⭐⭐ 最推荐</td>
+        </tr>
+        <tr style="background:#e8f4fd">
+          <td><strong>选项 C：有条件应标</strong></td>
+          <td>如果极兔明确表示<strong>愿意单独考虑海外国家方案</strong>（中国区仍用用友），则针对海外 12 国提交 D365 方案，与用友形成互补而非竞争</td>
+          <td>中（1 人月）</td>
+          <td style="color:#0078d4;font-weight:700">⭐⭐⭐ 有条件</td>
+        </tr>
+        <tr>
+          <td><strong>选项 D：正式全量应标</strong></td>
+          <td>如果有明确信号表明极兔正在重新评估技术栈要求，或高层对微软方案有战略兴趣</td>
+          <td>高（2-3 人月）</td>
+          <td style="color:#605e5c;font-weight:700">⭐ 不推荐</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout info">
+    <span class="icon">💡</span>
+    <div>
+      <strong>最佳策略（选项 B）：</strong> 不做无谓应标，但利用此 RFP 机会建立<strong>高层关系</strong>。
+      极兔正在全球化扩张，用友在巴西、中东、德国等市场的本地化能力薄弱。
+      微软可定位为<strong>"海外财务合规与分析平台合作伙伴"</strong>，在用友拿下整体项目后，
+      作为海外本地化的补充方案进入（D365 Finance for Global Subsidiaries + Power BI/Fabric for Global Analytics）。
+      这是一个更现实、更可持续的切入点。
     </div>
   </div>
 
@@ -1012,7 +1272,7 @@
 
 <footer>
   <p>© 2026 Confidential — Prepared with Microsoft Dynamics 365 & Azure product documentation</p>
-  <p>极兔速递全球业财中台 · D365 Finance 适配性分析 · v1.0</p>
+  <p>极兔速递全球业财中台 · D365 Finance 适配性分析 · v2.0 — 含中肯评判</p>
 </footer>
 
 </body>
