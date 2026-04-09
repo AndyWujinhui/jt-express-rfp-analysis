@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>F&O MCP Comparison: Global vs 21V</title>
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #5b6472;
+      --line: #d8deea;
+      --ok: #1f8f4e;
+      --warn: #b7791f;
+      --bad: #b91c1c;
+      --accent: #0f4c81;
+      --accent-2: #126e82;
+      --shadow: 0 8px 24px rgba(15, 76, 129, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 5%, rgba(18, 110, 130, 0.14), transparent 45%),
+        radial-gradient(circle at 90% 0%, rgba(15, 76, 129, 0.18), transparent 50%),
+        var(--bg);
+      line-height: 1.45;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 28px auto 44px;
+      padding: 0 18px;
+    }
+
+    .hero {
+      background: linear-gradient(120deg, #0f4c81, #126e82);
+      color: #fff;
+      padding: 28px 26px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      letter-spacing: 0.2px;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      opacity: 0.95;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .kpi {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .kpi .n {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .kpi .t {
+      font-size: 0.82rem;
+      opacity: 0.92;
+    }
+
+    .panel {
+      background: var(--panel);
+      margin-top: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      box-shadow: 0 4px 16px rgba(31, 41, 55, 0.06);
+      overflow: hidden;
+    }
+
+    .panel h2 {
+      margin: 0;
+      padding: 14px 16px;
+      font-size: 1.05rem;
+      border-bottom: 1px solid var(--line);
+      background: #f8fbff;
+    }
+
+    .panel .content {
+      padding: 14px 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      background: #f6f9fd;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .ok { color: var(--ok); background: #ebf9f1; border-color: #b9ebcd; }
+    .warn { color: var(--warn); background: #fff7ea; border-color: #f4deb5; }
+    .bad { color: var(--bad); background: #fdeeee; border-color: #f6c7c7; }
+
+    .mono {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.85rem;
+      color: #334155;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px;
+      margin: 6px 0 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    ul {
+      margin: 8px 0;
+      padding-left: 18px;
+    }
+
+    .foot {
+      color: var(--muted);
+      font-size: 0.83rem;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+      th, td { font-size: 0.86rem; }
+    }
+
+    @media (max-width: 520px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.35rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Dynamics 365 F&O MCP Functional Comparison</h1>
+      <p>Environment baseline and function-by-function capability contrast between Global F&O and 21V F&O.</p>
+      <div class="grid">
+        <div class="kpi"><div class="n">Global</div><div class="t">demo-andy.sandbox.operations.dynamics.com</div></div>
+        <div class="kpi"><div class="n">21V</div><div class="t">dynamicsfo.sandbox.operations.dynamics.cn</div></div>
+        <div class="kpi"><div class="n">Data CRUD</div><div class="t">21V validated</div></div>
+        <div class="kpi"><div class="n">API Actions</div><div class="t">Global validated</div></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Environment And Connectivity</h2>
+      <div class="content">
+        <table>
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th>Global F&O MCP</th>
+              <th>21V F&O MCP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>MCP endpoint</td>
+              <td><span class="mono">https://demo-andy.sandbox.operations.dynamics.com/mcp</span></td>
+              <td><span class="mono">https://dynamicsfo.sandbox.operations.dynamics.cn/mcp</span></td>
+            </tr>
+            <tr>
+              <td>Auth cloud</td>
+              <td>Global Entra ID (<span class="mono">login.microsoftonline.com</span>)</td>
+              <td>21V Entra ID (<span class="mono">login.partner.microsoftonline.cn</span>)</td>
+            </tr>
+            <tr>
+              <td>Connection mode used in VS Code</td>
+              <td>Direct HTTP MCP</td>
+              <td>Stdio bridge + token proxy</td>
+            </tr>
+            <tr>
+              <td>Current execution status</td>
+              <td><span class="tag ok">Operational</span></td>
+              <td><span class="tag warn">Partially operational</span> (Data path works; API/Form path currently throwing runtime error)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Function-Level Comparison Matrix</h2>
+      <div class="content">
+        <table>
+          <thead>
+            <tr>
+              <th>Function Domain</th>
+              <th>Global F&O (Observed)</th>
+              <th>21V F&O (Observed)</th>
+              <th>Assessment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>API action discovery</td>
+              <td>
+                <span class="tag ok">Works</span>
+                <div class="mono">mcp_my-mcp-server4_api_find_actions</div>
+              </td>
+              <td>
+                <span class="tag bad">Fails</span>
+                <div class="mono">mcp_my-mcp-server6_api_find_actions
+Error: code?.toLowerCase is not a function</div>
+              </td>
+              <td>Global API function channel is available; 21V API channel has server/runtime issue.</td>
+            </tr>
+            <tr>
+              <td>Form function discovery and interaction</td>
+              <td>Not baseline-tested in this run</td>
+              <td>
+                <span class="tag bad">Fails</span>
+                <div class="mono">form_find_controls / form_filter_form / form_click_control
+Error: code?.toLowerCase is not a function</div>
+              </td>
+              <td>21V form channel currently unhealthy; investigate server build/proxy parser.</td>
+            </tr>
+            <tr>
+              <td>Data entity discovery</td>
+              <td>Not baseline-tested in this run</td>
+              <td>
+                <span class="tag ok">Works</span>
+                <div class="mono">data_find_entity_type("vendor") => VendorsV2, VendorGroups, VendorsForAI</div>
+              </td>
+              <td>21V data metadata path is functioning.</td>
+            </tr>
+            <tr>
+              <td>Data query (vendor search)</td>
+              <td>Not baseline-tested in this run</td>
+              <td>
+                <span class="tag ok">Works with caveats</span>
+                <div class="mono">Vendor master query in USMF succeeded using data + form fallback during prior runs.</div>
+              </td>
+              <td>Queryable, but some server-side filters appear inconsistent in tool wrapper.</td>
+            </tr>
+            <tr>
+              <td>Data create (vendor master)</td>
+              <td>Not baseline-tested in this run</td>
+              <td>
+                <span class="tag ok">Works</span>
+                <div class="mono">Created: VendorsV2(dataAreaId='usmf', VendorAccountNumber='CN-RAIL-001')</div>
+              </td>
+              <td>21V can execute transactional CRUD via Data functions.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Global API Function Inventory (Sampled)</h2>
+      <div class="content">
+        <table>
+          <thead>
+            <tr>
+              <th>Business Area</th>
+              <th>Function Name</th>
+              <th>Action Menu Item</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Vendor invoice</td><td>Check vendor invoice match status</td><td>VendInvoiceGetInvoiceMatchStatusCustomAPI</td></tr>
+            <tr><td>Vendor invoice</td><td>Match vendor invoice with product receipt</td><td>VendInvoiceMatchProductReceiptCustomAPI</td></tr>
+            <tr><td>Vendor invoice</td><td>Get unmatched vendor invoices</td><td>VendInvoiceGetUnmatchedInvoicesCustomAPI</td></tr>
+            <tr><td>Vendor invoice</td><td>Submit invoice to workflow</td><td>VendInvoiceSubmitToWorkflowCustomAPI</td></tr>
+            <tr><td>Vendor communication</td><td>Send mail to vendor</td><td>VendInvoiceSendMailToVendorCustomAPI</td></tr>
+            <tr><td>Purchasing</td><td>Find purchase order by candidate purchase order ID</td><td>PurchCopilotInboundFindPurchaseOrders</td></tr>
+            <tr><td>Purchasing</td><td>Stage purchase order updates</td><td>PurchCopilotInboundStagePurchaseOrderUpdatesCustomAPI</td></tr>
+            <tr><td>Inventory planning</td><td>Get inventory projection</td><td>PurchCopilotDMAGetInventoryProjectionCustomAPI</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Recommendations By Function</h2>
+      <div class="content">
+        <ul>
+          <li>For 21V production use now, prioritize Data functions for query/create/update flows.</li>
+          <li>For API/Form parity with Global, troubleshoot 21V MCP server runtime error <span class="mono">code?.toLowerCase is not a function</span>.</li>
+          <li>Use identical functional test packs across both environments: Vendor, Purchase, Invoice, Inventory, Workflow.</li>
+          <li>Keep bridge auth/token path in 21V, but validate server-side tool schema parsing to recover form/api channels.</li>
+        </ul>
+        <p class="foot">Generated on 2026-04-09 from live MCP interactions in your workspace.</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
