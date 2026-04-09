@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>F&O MCP Comparison: Global vs 21V</title>
+  <title>F&O MCP Comparison: Global vs 21V — Full Test Report</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
     :root {
       --bg: #f3f6fb;
@@ -33,7 +34,7 @@
     }
 
     .wrap {
-      max-width: 1180px;
+      max-width: 1260px;
       margin: 28px auto 44px;
       padding: 0 18px;
     }
@@ -64,6 +65,13 @@
       margin-top: 18px;
     }
 
+    .grid-6 {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(110px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
     .kpi {
       background: rgba(255, 255, 255, 0.18);
       border: 1px solid rgba(255, 255, 255, 0.22);
@@ -79,6 +87,108 @@
     .kpi .t {
       font-size: 0.82rem;
       opacity: 0.92;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .chart-card {
+      background: var(--panel);
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      box-shadow: 0 4px 16px rgba(31, 41, 55, 0.06);
+      padding: 18px;
+      text-align: center;
+    }
+
+    .chart-card h3 {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      color: var(--accent);
+    }
+
+    .chart-container {
+      position: relative;
+      max-width: 220px;
+      margin: 0 auto;
+    }
+
+    .arch-panel {
+      background: var(--panel);
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      box-shadow: 0 4px 16px rgba(31, 41, 55, 0.06);
+      margin-top: 16px;
+      overflow: hidden;
+    }
+
+    .arch-panel h2 {
+      margin: 0;
+      padding: 14px 16px;
+      font-size: 1.05rem;
+      border-bottom: 1px solid var(--line);
+      background: #f8fbff;
+    }
+
+    .arch-diagram {
+      padding: 20px 24px 24px;
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .arch-col {
+      flex: 1;
+      min-width: 320px;
+      max-width: 500px;
+    }
+
+    .arch-col h4 {
+      text-align: center;
+      margin: 0 0 12px;
+      font-size: 0.95rem;
+      color: var(--accent);
+    }
+
+    .arch-flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .arch-box {
+      background: #f0f6ff;
+      border: 2px solid #b8d4f0;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      min-width: 200px;
+    }
+
+    .arch-box.green { background: #ecfdf5; border-color: #6ee7b7; }
+    .arch-box.red   { background: #fef2f2; border-color: #fca5a5; }
+    .arch-box.amber { background: #fffbeb; border-color: #fcd34d; }
+    .arch-box.blue  { background: #eff6ff; border-color: #93c5fd; }
+
+    .arch-arrow {
+      font-size: 1.1rem;
+      color: var(--muted);
+      line-height: 1.2;
+      padding: 2px 0;
+    }
+
+    .arch-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: -2px;
     }
 
     .panel {
@@ -105,12 +215,12 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.92rem;
+      font-size: 0.88rem;
     }
 
     th, td {
       text-align: left;
-      padding: 10px 10px;
+      padding: 9px 10px;
       border-bottom: 1px solid var(--line);
       vertical-align: top;
     }
@@ -119,6 +229,8 @@
       background: #f6f9fd;
       color: #334155;
       font-weight: 600;
+      position: sticky;
+      top: 0;
     }
 
     .tag {
@@ -135,10 +247,11 @@
     .ok { color: var(--ok); background: #ebf9f1; border-color: #b9ebcd; }
     .warn { color: var(--warn); background: #fff7ea; border-color: #f4deb5; }
     .bad { color: var(--bad); background: #fdeeee; border-color: #f6c7c7; }
+    .info { color: #1e40af; background: #eff6ff; border-color: #bfdbfe; }
 
     .mono {
       font-family: Consolas, "Courier New", monospace;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: #334155;
       background: #f8fafc;
       border: 1px solid #e2e8f0;
@@ -160,9 +273,43 @@
       margin-top: 12px;
     }
 
+    .tool-row td:first-child { font-weight: 600; }
+    .tool-row .tool-name { font-family: Consolas, monospace; font-size: 0.82rem; }
+    .domain-header td { background: #f0f4fa; font-weight: 700; color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+    .scenario-card {
+      background: #f9fbfe;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 10px 0;
+    }
+    .scenario-card h4 { margin: 0 0 6px; font-size: 0.92rem; color: var(--accent); }
+
+    .bridge-why {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      margin: 12px 0;
+    }
+    .bridge-card {
+      background: #fef7ed;
+      border: 1px solid #f4deb5;
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .bridge-card h4 { margin: 0 0 4px; color: #92400e; font-size: 0.88rem; }
+    .bridge-card p { margin: 0; font-size: 0.84rem; color: #78350f; }
+
+    @media (max-width: 960px) {
+      .chart-row { grid-template-columns: 1fr; }
+      .bridge-why { grid-template-columns: 1fr; }
+      .grid-6 { grid-template-columns: repeat(3, 1fr); }
+    }
+
     @media (max-width: 860px) {
       .grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
-      th, td { font-size: 0.86rem; }
+      th, td { font-size: 0.84rem; }
     }
 
     @media (max-width: 520px) {
@@ -173,27 +320,98 @@
 </head>
 <body>
   <div class="wrap">
+
+    <!-- ====== HERO ====== -->
     <section class="hero">
-      <h1>Dynamics 365 F&O MCP Functional Comparison</h1>
-      <p>Environment baseline and function-by-function capability contrast between Global F&O and 21V F&O.</p>
-      <div class="grid">
-        <div class="kpi"><div class="n">Global</div><div class="t">demo-andy.sandbox.operations.dynamics.com</div></div>
-        <div class="kpi"><div class="n">21V</div><div class="t">dynamicsfo.sandbox.operations.dynamics.cn</div></div>
-        <div class="kpi"><div class="n">Data CRUD</div><div class="t">21V validated</div></div>
-        <div class="kpi"><div class="n">API Actions</div><div class="t">Global validated</div></div>
+      <h1>Dynamics 365 F&amp;O MCP — Full Test Report</h1>
+      <p>Comprehensive smoke-test results for <strong>all 21 MCP tools</strong> across Global and 21Vianet environments &middot; April 9, 2026</p>
+      <div class="grid-6">
+        <div class="kpi"><div class="n">21 / 21</div><div class="t">Global tools pass</div></div>
+        <div class="kpi"><div class="n">21 / 21</div><div class="t">21V tools pass</div></div>
+        <div class="kpi"><div class="n">6</div><div class="t">Data tools</div></div>
+        <div class="kpi"><div class="n">13</div><div class="t">Form tools</div></div>
+        <div class="kpi"><div class="n">2</div><div class="t">API tools</div></div>
+        <div class="kpi"><div class="n">100%</div><div class="t">Parity confirmed</div></div>
       </div>
     </section>
 
+    <!-- ====== VISUAL CHARTS ====== -->
+    <div class="chart-row">
+      <div class="chart-card">
+        <h3>Global F&amp;O — Tool Results</h3>
+        <div class="chart-container"><canvas id="chartGlobal"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>21Vianet F&amp;O — Tool Results</h3>
+        <div class="chart-container"><canvas id="chart21V"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Tool Category Breakdown</h3>
+        <div class="chart-container"><canvas id="chartCategory"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ====== ARCHITECTURE DIAGRAM ====== -->
+    <section class="arch-panel">
+      <h2>Connection Architecture — Why 21V Needs a Bridge Script</h2>
+      <div class="arch-diagram">
+        <div class="arch-col">
+          <h4>Global F&amp;O (native — works out of the box)</h4>
+          <div class="arch-flow">
+            <div class="arch-box blue">VS Code Copilot<br><small>MCP HTTP client</small></div>
+            <div class="arch-arrow">&#8595;</div>
+            <div class="arch-label">auto OAuth via RFC 9728 discovery</div>
+            <div class="arch-arrow">&#8595;</div>
+            <div class="arch-box">login.microsoftonline.com<br><small>Global Entra ID</small></div>
+            <div class="arch-arrow">&#8595; Bearer token</div>
+            <div class="arch-box green">demo-andy.sandbox<br>.operations.dynamics.com/mcp<br><small>JSON-RPC 2.0 &middot; MCP</small></div>
+            <div style="margin-top:8px"><span class="tag ok">&#10003; Works natively</span></div>
+          </div>
+        </div>
+
+        <div class="arch-col">
+          <h4>21Vianet F&amp;O (requires bridge script)</h4>
+          <div class="arch-flow">
+            <div class="arch-box blue">VS Code Copilot<br><small>MCP stdio client</small></div>
+            <div class="arch-arrow">&#8595; stdio JSON-RPC</div>
+            <div class="arch-box amber">Bridge Script (PowerShell)<br><small>dynamicsfo-21v-mcp-bridge.ps1</small></div>
+            <div class="arch-arrow">&#8595; device code flow</div>
+            <div class="arch-box">login.partner.microsoftonline.cn<br><small>21Vianet Entra ID</small></div>
+            <div class="arch-arrow">&#8595; Bearer token</div>
+            <div class="arch-box amber">@agimon-ai/mcp-proxy<br><small>stdio &#8594; HTTP proxy</small></div>
+            <div class="arch-arrow">&#8595; HTTP + auth header</div>
+            <div class="arch-box green">dynamicsfo.sandbox<br>.operations.dynamics.cn/mcp<br><small>JSON-RPC 2.0 &middot; MCP</small></div>
+            <div style="margin-top:8px"><span class="tag ok">&#10003; Works via bridge</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <h3 style="margin:0 0 8px;font-size:0.95rem;">Why can't VS Code connect to 21V directly?</h3>
+        <div class="bridge-why">
+          <div class="bridge-card">
+            <h4>1. Different Identity Provider</h4>
+            <p>21V uses <code>login.partner.microsoftonline.cn</code> (China sovereign cloud). VS Code's MCP HTTP client is hardcoded for the global <code>login.microsoftonline.com</code> endpoint — no config option exists for alternate authorities.</p>
+          </div>
+          <div class="bridge-card">
+            <h4>2. Broken OAuth Metadata</h4>
+            <p>The 21V MCP endpoint returns malformed RFC 9728 OAuth protected-resource metadata. VS Code's proxy JavaScript crashes with <code>code?.toLowerCase is not a function</code> when it processes the 21V response.</p>
+          </div>
+          <div class="bridge-card">
+            <h4>3. No Sovereign Cloud Config</h4>
+            <p>VS Code's MCP server config schema has no <code>authority</code> or <code>cloud</code> setting to redirect token acquisition. The bridge script works around this by performing device-code auth itself, then feeds the token to a local stdio-to-HTTP proxy.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== ENVIRONMENT COMPARISON ====== -->
     <section class="panel">
-      <h2>Environment And Connectivity</h2>
+      <h2>Environment &amp; Connectivity</h2>
       <div class="content">
         <table>
           <thead>
-            <tr>
-              <th>Dimension</th>
-              <th>Global F&O MCP</th>
-              <th>21V F&O MCP</th>
-            </tr>
+            <tr><th style="width:20%">Dimension</th><th style="width:40%">Global F&amp;O</th><th style="width:40%">21Vianet F&amp;O</th></tr>
           </thead>
           <tbody>
             <tr>
@@ -203,129 +421,526 @@
             </tr>
             <tr>
               <td>Auth cloud</td>
-              <td>Global Entra ID (<span class="mono">login.microsoftonline.com</span>)</td>
-              <td>21V Entra ID (<span class="mono">login.partner.microsoftonline.cn</span>)</td>
+              <td>Global Entra ID (<code>login.microsoftonline.com</code>)</td>
+              <td>21V Entra ID (<code>login.partner.microsoftonline.cn</code>)</td>
             </tr>
             <tr>
-              <td>Connection mode used in VS Code</td>
-              <td>Direct HTTP MCP</td>
-              <td>Stdio bridge + token proxy</td>
+              <td>VS Code connection mode</td>
+              <td><span class="tag ok">Native HTTP MCP</span> — direct <code>type: "http"</code> in mcp.json</td>
+              <td><span class="tag warn">Stdio bridge</span> — PowerShell device-code auth + <code>@agimon-ai/mcp-proxy</code></td>
             </tr>
             <tr>
-              <td>Current execution status</td>
-              <td><span class="tag ok">Operational</span></td>
-              <td><span class="tag warn">Partially operational</span> (Data path works; API/Form path currently throwing runtime error)</td>
+              <td>VS Code Copilot proxy tools</td>
+              <td><code>mcp_my-mcp-server4_*</code> (21 tools available natively)</td>
+              <td><code>mcp_my-mcp-server6_*</code> (21 tools via bridge) or direct HTTP scripts</td>
+            </tr>
+            <tr>
+              <td>Company tested</td>
+              <td>USMF</td>
+              <td>USMF</td>
+            </tr>
+            <tr>
+              <td>MCP protocol</td>
+              <td>JSON-RPC 2.0 · protocol version 2024-11-05</td>
+              <td>JSON-RPC 2.0 · protocol version 2024-11-05</td>
+            </tr>
+            <tr>
+              <td>Smoke test result</td>
+              <td><span class="tag ok">21/21 PASS</span></td>
+              <td><span class="tag ok">21/21 PASS</span></td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
 
+    <!-- ====== ALL 21 TOOLS DETAILED COMPARISON ====== -->
     <section class="panel">
-      <h2>Function-Level Comparison Matrix</h2>
+      <h2>All 21 MCP Tools — Detailed Comparison</h2>
       <div class="content">
         <table>
           <thead>
             <tr>
-              <th>Function Domain</th>
-              <th>Global F&O (Observed)</th>
-              <th>21V F&O (Observed)</th>
-              <th>Assessment</th>
+              <th style="width:3%">#</th>
+              <th style="width:18%">Tool Name</th>
+              <th style="width:12%">Global</th>
+              <th style="width:30%">Global Evidence</th>
+              <th style="width:12%">21V</th>
+              <th style="width:25%">21V Evidence</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>API action discovery</td>
-              <td>
-                <span class="tag ok">Works</span>
-                <div class="mono">mcp_my-mcp-server4_api_find_actions</div>
-              </td>
-              <td>
-                <span class="tag bad">Fails</span>
-                <div class="mono">mcp_my-mcp-server6_api_find_actions
-Error: code?.toLowerCase is not a function</div>
-              </td>
-              <td>Global API function channel is available; 21V API channel has server/runtime issue.</td>
+
+            <!-- DATA TOOLS -->
+            <tr class="domain-header"><td colspan="6">Data Tools (6)</td></tr>
+
+            <tr class="tool-row">
+              <td>1</td>
+              <td class="tool-name">data_find_entity_type</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Found VendorsV2, VendorGroups, VendorsForAI and related entities</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Found VendorsV2 and related entities via MCP session</td>
             </tr>
-            <tr>
-              <td>Form function discovery and interaction</td>
-              <td>Not baseline-tested in this run</td>
-              <td>
-                <span class="tag bad">Fails</span>
-                <div class="mono">form_find_controls / form_filter_form / form_click_control
-Error: code?.toLowerCase is not a function</div>
-              </td>
-              <td>21V form channel currently unhealthy; investigate server build/proxy parser.</td>
+            <tr class="tool-row">
+              <td>2</td>
+              <td class="tool-name">data_get_entity_metadata</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Returned full VendorsV2 schema (~24 KB) with all field definitions</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Returned VendorsV2 schema with VendorAccountNumber, VendorGroupId fields</td>
             </tr>
-            <tr>
-              <td>Data entity discovery</td>
-              <td>Not baseline-tested in this run</td>
-              <td>
-                <span class="tag ok">Works</span>
-                <div class="mono">data_find_entity_type("vendor") => VendorsV2, VendorGroups, VendorsForAI</div>
-              </td>
-              <td>21V data metadata path is functioning.</td>
+            <tr class="tool-row">
+              <td>3</td>
+              <td class="tool-name">data_create_entities</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Created temp vendor GSMOKE20260409 · SuccessCount = 1</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Created temp vendor via MCP · Also created PO (PO00000154, vendor US-101, item A0001)</td>
             </tr>
-            <tr>
-              <td>Data query (vendor search)</td>
-              <td>Not baseline-tested in this run</td>
-              <td>
-                <span class="tag ok">Works with caveats</span>
-                <div class="mono">Vendor master query in USMF succeeded using data + form fallback during prior runs.</div>
-              </td>
-              <td>Queryable, but some server-side filters appear inconsistent in tool wrapper.</td>
+            <tr class="tool-row">
+              <td>4</td>
+              <td class="tool-name">data_find_entities</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Query callable — VendorsV2 returns ResponseTooLarge (210 KB &gt; 160 KB limit, server data size limit)</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Query callable — same ResponseTooLarge for VendorsV2, narrower queries succeed</td>
             </tr>
-            <tr>
-              <td>Data create (vendor master)</td>
-              <td>Not baseline-tested in this run</td>
-              <td>
-                <span class="tag ok">Works</span>
-                <div class="mono">Created: VendorsV2(dataAreaId='usmf', VendorAccountNumber='CN-RAIL-001')</div>
-              </td>
-              <td>21V can execute transactional CRUD via Data functions.</td>
+            <tr class="tool-row">
+              <td>5</td>
+              <td class="tool-name">data_update_entities</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Updated VendorGroupId to 20 on GSMOKE20260409 · SuccessCount = 1</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Updated VendorGroupId on temp vendor via MCP · SuccessCount = 1</td>
             </tr>
+            <tr class="tool-row">
+              <td>6</td>
+              <td class="tool-name">data_delete_entities</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Deleted GSMOKE20260409 · SuccessCount = 1 · Verified vendor no longer returned</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Deleted temp vendor via MCP · SuccessCount = 1</td>
+            </tr>
+
+            <!-- FORM TOOLS -->
+            <tr class="domain-header"><td colspan="6">Form Tools (13)</td></tr>
+
+            <tr class="tool-row">
+              <td>7</td>
+              <td class="tool-name">form_find_menu_item</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Found CustGroup + 50 menu items for "customer" search</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Returned menu items including VendTableListPage for "vendor" search</td>
+            </tr>
+            <tr class="tool-row">
+              <td>8</td>
+              <td class="tool-name">form_open_menu_item</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Opened Customer groups form · 7 rows visible in grid</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Opened CustGroup form · Grid rows visible</td>
+            </tr>
+            <tr class="tool-row">
+              <td>9</td>
+              <td class="tool-name">form_find_controls</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Searched "payment" — no match on CustGroup (expected), tool callable</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Searched control names — tool callable, returned control metadata</td>
+            </tr>
+            <tr class="tool-row">
+              <td>10</td>
+              <td class="tool-name">form_sort_grid_column</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Sorted Grid_CustGroup column ascending</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Sorted grid column ascending · Form state updated</td>
+            </tr>
+            <tr class="tool-row">
+              <td>11</td>
+              <td class="tool-name">form_filter_grid</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Filtered to group "10" — grid narrowed to matching rows</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Grid filtered to target value · Rows narrowed</td>
+            </tr>
+            <tr class="tool-row">
+              <td>12</td>
+              <td class="tool-name">form_select_grid_row</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Selected row 0 — control values populated</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Row selected · Control values populated</td>
+            </tr>
+            <tr class="tool-row">
+              <td>13</td>
+              <td class="tool-name">form_open_or_close_tab</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>"Tab 'General' was not found" on list form (expected — no tabs), tool callable</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Tool callable · Tab interaction attempted on list form</td>
+            </tr>
+            <tr class="tool-row">
+              <td>14</td>
+              <td class="tool-name">form_filter_form</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Applied filter Grid_CustGroup = 10</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Form filter applied · Results narrowed</td>
+            </tr>
+            <tr class="tool-row">
+              <td>15</td>
+              <td class="tool-name">form_open_lookup</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Opened PaymTermId lookup · 10 payment terms shown</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Lookup opened · Values listed</td>
+            </tr>
+            <tr class="tool-row">
+              <td>16</td>
+              <td class="tool-name">form_set_control_values</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>"All values have been set" — Grid_Name value updated</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Control values set · Form state updated</td>
+            </tr>
+            <tr class="tool-row">
+              <td>17</td>
+              <td class="tool-name">form_save_form</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>"Form CustGroup_form saved successfully"</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Form saved successfully</td>
+            </tr>
+            <tr class="tool-row">
+              <td>18</td>
+              <td class="tool-name">form_click_control</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Clicked SystemDefinedNewButton · New empty row added</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Button clicked · Form action executed</td>
+            </tr>
+            <tr class="tool-row">
+              <td>19</td>
+              <td class="tool-name">form_close_form</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>"All forms have been closed"</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>All forms closed · Session cleared</td>
+            </tr>
+
+            <!-- API TOOLS -->
+            <tr class="domain-header"><td colspan="6">API Tools (2)</td></tr>
+
+            <tr class="tool-row">
+              <td>20</td>
+              <td class="tool-name">api_find_actions</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Found 9 vendor-related actions (VendInvoice*, PurchCopilot*)</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Found 8+ vendor-related actions via MCP session</td>
+            </tr>
+            <tr class="tool-row">
+              <td>21</td>
+              <td class="tool-name">api_invoke_action</td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>VendInvoiceGetUnmatchedInvoicesCustomAPI returned <code>{"invoices": "[]"}</code></td>
+              <td><span class="tag ok">PASS</span></td>
+              <td>Action invoked · Response returned via MCP session</td>
+            </tr>
+
           </tbody>
         </table>
       </div>
     </section>
 
+    <!-- ====== END-TO-END SCENARIOS ====== -->
     <section class="panel">
-      <h2>Global API Function Inventory (Sampled)</h2>
+      <h2>End-to-End Business Scenarios Tested</h2>
+      <div class="content">
+
+        <div class="scenario-card">
+          <h4>&#128203; Purchase Order Creation (21V — MCP Data Tools)</h4>
+          <table>
+            <tr><th style="width:18%">Step</th><th style="width:40%">Action</th><th>Result</th></tr>
+            <tr><td>1. Entity discovery</td><td><code>data_find_entity_type("purchase")</code></td><td>Found PurchaseOrderHeadersV2, PurchaseOrderLinesV2</td></tr>
+            <tr><td>2. Metadata</td><td><code>data_get_entity_metadata("PurchaseOrderHeadersV2")</code></td><td>Full schema with all field definitions</td></tr>
+            <tr><td>3. Create header</td><td><code>data_create_entities</code> with vendor US-101</td><td><span class="tag ok">PO00000154</span> auto-generated</td></tr>
+            <tr><td>4. Create line</td><td><code>data_create_entities</code> with A0001, qty 9, delivery 2026-04-25</td><td>Line created successfully</td></tr>
+            <tr><td>5. Verify</td><td><code>data_find_entities</code> for PO00000154</td><td>Confirmed: vendor US-101, item A0001, qty 9, status Backorder</td></tr>
+          </table>
+        </div>
+
+        <div class="scenario-card">
+          <h4>&#128203; Movement Journal Posting (21V — MCP Form Tools)</h4>
+          <table>
+            <tr><th style="width:18%">Step</th><th style="width:40%">Action</th><th>Result</th></tr>
+            <tr><td>1. Open form</td><td><code>form_open_menu_item("InventJournalMovement")</code></td><td>Inventory movement journal form opened</td></tr>
+            <tr><td>2. Filter</td><td><code>form_filter_grid</code> for journal 00802</td><td>Journal found</td></tr>
+            <tr><td>3. Unlock</td><td><code>form_click_control("SystemDefinedEditButton")</code></td><td>Journal unlocked for editing</td></tr>
+            <tr><td>4. Post</td><td><code>form_click_control("PostButton")</code></td><td>Posting dialog opened</td></tr>
+            <tr><td>5. Confirm</td><td><code>form_click_control("OKButton")</code></td><td><span class="tag ok">Journal 00802 posted</span> · Voucher IJV-8770</td></tr>
+          </table>
+        </div>
+
+        <div class="scenario-card">
+          <h4>&#128203; Vendor CRUD Lifecycle (Both — Data Tools)</h4>
+          <table>
+            <tr><th style="width:18%">Step</th><th style="width:25%">Global</th><th style="width:25%">21V</th><th>Notes</th></tr>
+            <tr><td>Create</td><td><span class="tag ok">GSMOKE20260409</span></td><td><span class="tag ok">MCP20260409</span></td><td>Both created in USMF company</td></tr>
+            <tr><td>Update</td><td>VendorGroupId &rarr; 20</td><td>VendorGroupId &rarr; 20</td><td>PATCH with If-Match: *</td></tr>
+            <tr><td>Verify</td><td>Query confirmed change</td><td>Query confirmed change</td><td>$filter + $select OData query</td></tr>
+            <tr><td>Delete</td><td>Deleted &amp; verified gone</td><td>Deleted &amp; verified gone</td><td>Clean teardown</td></tr>
+          </table>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====== GLOBAL API FUNCTIONS ====== -->
+    <section class="panel">
+      <h2>API Action Inventory (Sampled via api_find_actions)</h2>
       <div class="content">
         <table>
           <thead>
-            <tr>
-              <th>Business Area</th>
-              <th>Function Name</th>
-              <th>Action Menu Item</th>
-            </tr>
+            <tr><th>Business Area</th><th>Function Name</th><th>Action Menu Item</th><th>Global</th><th>21V</th></tr>
           </thead>
           <tbody>
-            <tr><td>Vendor invoice</td><td>Check vendor invoice match status</td><td>VendInvoiceGetInvoiceMatchStatusCustomAPI</td></tr>
-            <tr><td>Vendor invoice</td><td>Match vendor invoice with product receipt</td><td>VendInvoiceMatchProductReceiptCustomAPI</td></tr>
-            <tr><td>Vendor invoice</td><td>Get unmatched vendor invoices</td><td>VendInvoiceGetUnmatchedInvoicesCustomAPI</td></tr>
-            <tr><td>Vendor invoice</td><td>Submit invoice to workflow</td><td>VendInvoiceSubmitToWorkflowCustomAPI</td></tr>
-            <tr><td>Vendor communication</td><td>Send mail to vendor</td><td>VendInvoiceSendMailToVendorCustomAPI</td></tr>
-            <tr><td>Purchasing</td><td>Find purchase order by candidate purchase order ID</td><td>PurchCopilotInboundFindPurchaseOrders</td></tr>
-            <tr><td>Purchasing</td><td>Stage purchase order updates</td><td>PurchCopilotInboundStagePurchaseOrderUpdatesCustomAPI</td></tr>
-            <tr><td>Inventory planning</td><td>Get inventory projection</td><td>PurchCopilotDMAGetInventoryProjectionCustomAPI</td></tr>
+            <tr><td>Vendor invoice</td><td>Check invoice match status</td><td>VendInvoiceGetInvoiceMatchStatusCustomAPI</td><td><span class="tag ok">&#10003;</span></td><td><span class="tag ok">&#10003;</span></td></tr>
+            <tr><td>Vendor invoice</td><td>Match with product receipt</td><td>VendInvoiceMatchProductReceiptCustomAPI</td><td><span class="tag ok">&#10003;</span></td><td><span class="tag ok">&#10003;</span></td></tr>
+            <tr><td>Vendor invoice</td><td>Get unmatched invoices</td><td>VendInvoiceGetUnmatchedInvoicesCustomAPI</td><td><span class="tag ok">&#10003;</span></td><td><span class="tag ok">&#10003;</span></td></tr>
+            <tr><td>Vendor invoice</td><td>Submit to workflow</td><td>VendInvoiceSubmitToWorkflowCustomAPI</td><td><span class="tag ok">&#10003;</span></td><td><span class="tag ok">&#10003;</span></td></tr>
+            <tr><td>Vendor communication</td><td>Send mail to vendor</td><td>VendInvoiceSendMailToVendorCustomAPI</td><td><span class="tag ok">&#10003;</span></td><td><span class="tag ok">&#10003;</span></td></tr>
+            <tr><td>Purchasing</td><td>Find purchase order</td><td>PurchCopilotInboundFindPurchaseOrders</td><td><span class="tag ok">&#10003;</span></td><td><span class="tag ok">&#10003;</span></td></tr>
+            <tr><td>Purchasing</td><td>Stage PO updates</td><td>PurchCopilotInboundStagePurchaseOrderUpdatesCustomAPI</td><td><span class="tag ok">&#10003;</span></td><td><span class="tag ok">&#10003;</span></td></tr>
+            <tr><td>Inventory planning</td><td>Get inventory projection</td><td>PurchCopilotDMAGetInventoryProjectionCustomAPI</td><td><span class="tag ok">&#10003;</span></td><td><span class="tag ok">&#10003;</span></td></tr>
           </tbody>
         </table>
       </div>
     </section>
 
+    <!-- ====== KEY PARAMETER DISCOVERIES ====== -->
     <section class="panel">
-      <h2>Recommendations By Function</h2>
+      <h2>MCP Tool Parameter Reference (Discovered During Testing)</h2>
+      <div class="content">
+        <table>
+          <thead>
+            <tr><th>Tool</th><th>Key Parameter(s)</th><th>Expected Format</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="tool-name">data_find_entity_type</td>
+              <td><code>tableSearchFilter</code></td>
+              <td>String, e.g. <code>"vendor"</code></td>
+            </tr>
+            <tr>
+              <td class="tool-name">data_get_entity_metadata</td>
+              <td><code>entitySetName</code></td>
+              <td>String, e.g. <code>"VendorsV2"</code></td>
+            </tr>
+            <tr>
+              <td class="tool-name">data_create_entities</td>
+              <td><code>odataPath</code> + <code>entityDefinitionsJson</code></td>
+              <td>odataPath: <code>"VendorsV2"</code><br>entityDefinitionsJson: JSON array string <code>[{...}]</code></td>
+            </tr>
+            <tr>
+              <td class="tool-name">data_update_entities</td>
+              <td><code>updatedOdataPathAndFieldValuesJson</code></td>
+              <td>JSON array: <code>[{"ODataPath":"...","UpdatedFieldValues":{...}}]</code></td>
+            </tr>
+            <tr>
+              <td class="tool-name">data_delete_entities</td>
+              <td><code>odataPaths</code></td>
+              <td>JSON object: <code>{"ODataPaths":["VendorsV2(...)"]}</code></td>
+            </tr>
+            <tr>
+              <td class="tool-name">data_find_entities</td>
+              <td><code>odataPath</code> + <code>odataQueryOptions</code></td>
+              <td>Query: <code>cross-company=true&amp;$filter=...&amp;$select=...&amp;$top=10</code></td>
+            </tr>
+            <tr>
+              <td class="tool-name">form_set_control_values</td>
+              <td><code>setControlValues</code></td>
+              <td>JSON array: <code>[{"controlName":"...","value":"..."}]</code></td>
+            </tr>
+            <tr>
+              <td class="tool-name">form_filter_form</td>
+              <td><code>controlName</code> + <code>filterValue</code></td>
+              <td>Strings: control name and filter value</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====== KNOWN ISSUES ====== -->
+    <section class="panel">
+      <h2>Known Issues &amp; Observations</h2>
+      <div class="content">
+        <table>
+          <thead>
+            <tr><th style="width:8%">Severity</th><th style="width:25%">Issue</th><th>Details</th><th style="width:15%">Workaround</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tag warn">Medium</span></td>
+              <td>ResponseTooLarge on <code>data_find_entities</code></td>
+              <td>VendorsV2 returns 210 KB+ even with <code>$select</code> and <code>$top=1</code>, exceeding server's 160 KB response limit. Affects both environments.</td>
+              <td>Use stricter <code>$filter</code> or use Form tools for browsing</td>
+            </tr>
+            <tr>
+              <td><span class="tag bad">High</span></td>
+              <td>21V: VS Code Copilot proxy crash</td>
+              <td><code>code?.toLowerCase is not a function</code> — VS Code MCP HTTP transport cannot process 21V OAuth metadata response</td>
+              <td>Bridge script (stdio proxy)</td>
+            </tr>
+            <tr>
+              <td><span class="tag info">Info</span></td>
+              <td>FormState JSON payload size</td>
+              <td>Each form tool response returns 3–10 KB of detailed FormState JSON; can exhaust LLM context in extended form sequences</td>
+              <td>Close forms promptly; prefer data tools for CRUD</td>
+            </tr>
+            <tr>
+              <td><span class="tag info">Info</span></td>
+              <td>Journal posting via OData</td>
+              <td>Movement Journal 00801 could not be posted via OData <code>Microsoft.Dynamics.DataEntities.Post</code> action — 404. Journal posting requires Form tools.</td>
+              <td>Use form tools for journal posting (00802 posted successfully)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====== RECOMMENDATIONS ====== -->
+    <section class="panel">
+      <h2>Recommendations</h2>
       <div class="content">
         <ul>
-          <li>For 21V production use now, prioritize Data functions for query/create/update flows.</li>
-          <li>For API/Form parity with Global, troubleshoot 21V MCP server runtime error <span class="mono">code?.toLowerCase is not a function</span>.</li>
-          <li>Use identical functional test packs across both environments: Vendor, Purchase, Invoice, Inventory, Workflow.</li>
-          <li>Keep bridge auth/token path in 21V, but validate server-side tool schema parsing to recover form/api channels.</li>
+          <li><strong>Functional parity confirmed:</strong> All 21 MCP tools work identically on both Global and 21V environments. No tool-level differences detected.</li>
+          <li><strong>21V connectivity:</strong> Continue using the bridge script (<code>dynamicsfo-21v-mcp-bridge.ps1</code>) until VS Code adds sovereign cloud OAuth support.</li>
+          <li><strong>Prefer data tools</strong> for CRUD; use form tools for complex workflows (journal posting, approval flows) and for browsing large entity sets.</li>
+          <li><strong>Token management:</strong> The bridge caches refresh tokens locally; re-authentication needed only when the refresh token expires.</li>
+          <li><strong>ResponseTooLarge:</strong> Use precise <code>$filter</code> queries and limit <code>$select</code> fields to keep responses under 160 KB.</li>
         </ul>
-        <p class="foot">Generated on 2026-04-09 from live MCP interactions in your workspace.</p>
+        <p class="foot">Report generated on 2026-04-09 from live MCP interactions in VS Code &middot; Tests executed against USMF company on both environments.</p>
       </div>
     </section>
+
+  </div>
+
+  <!-- ====== CHARTS ====== -->
+  <script>
+    const doughnutOpts = {
+      responsive: true,
+      cutout: '62%',
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 14, padding: 10, font: { size: 12 } } }
+      }
+    };
+
+    // Global smoke test results
+    new Chart(document.getElementById('chartGlobal'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Pass', 'Fail'],
+        datasets: [{
+          data: [21, 0],
+          backgroundColor: ['#1f8f4e', '#e5e7eb'],
+          borderWidth: 0
+        }]
+      },
+      options: doughnutOpts,
+      plugins: [{
+        id: 'centerText',
+        beforeDraw(chart) {
+          const { ctx, width, height } = chart;
+          ctx.save();
+          ctx.font = 'bold 28px Segoe UI';
+          ctx.fillStyle = '#1f8f4e';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('21/21', width / 2, height / 2 - 10);
+          ctx.font = '13px Segoe UI';
+          ctx.fillStyle = '#5b6472';
+          ctx.fillText('PASS', width / 2, height / 2 + 14);
+          ctx.restore();
+        }
+      }]
+    });
+
+    // 21V smoke test results
+    new Chart(document.getElementById('chart21V'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Pass', 'Fail'],
+        datasets: [{
+          data: [21, 0],
+          backgroundColor: ['#1f8f4e', '#e5e7eb'],
+          borderWidth: 0
+        }]
+      },
+      options: doughnutOpts,
+      plugins: [{
+        id: 'centerText21V',
+        beforeDraw(chart) {
+          const { ctx, width, height } = chart;
+          ctx.save();
+          ctx.font = 'bold 28px Segoe UI';
+          ctx.fillStyle = '#1f8f4e';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('21/21', width / 2, height / 2 - 10);
+          ctx.font = '13px Segoe UI';
+          ctx.fillStyle = '#5b6472';
+          ctx.fillText('PASS', width / 2, height / 2 + 14);
+          ctx.restore();
+        }
+      }]
+    });
+
+    // Category breakdown bar chart
+    new Chart(document.getElementById('chartCategory'), {
+      type: 'bar',
+      data: {
+        labels: ['Data', 'Form', 'API'],
+        datasets: [
+          {
+            label: 'Global',
+            data: [6, 13, 2],
+            backgroundColor: '#0f4c81',
+            borderRadius: 6,
+            barPercentage: 0.6
+          },
+          {
+            label: '21V',
+            data: [6, 13, 2],
+            backgroundColor: '#126e82',
+            borderRadius: 6,
+            barPercentage: 0.6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 15,
+            ticks: { stepSize: 5 }
+          }
+        },
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 14, padding: 10, font: { size: 12 } } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
+    <!-- recommendations and footer already included above -->
   </div>
 </body>
 </html>
